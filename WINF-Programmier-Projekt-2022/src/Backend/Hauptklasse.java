@@ -5,6 +5,7 @@ import UI.UI;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 public class Hauptklasse {
@@ -19,10 +20,52 @@ public class Hauptklasse {
 
     public static void main(String[] args) {
 
-        uI(grafikkartenQuery());
+        // uI(grafikkartenQuery());
+        uI(establishConnection());
+
     }
 
-    public static String[][] grafikkartenQuery() {
+    public static String[][] establishConnection() {
+        String[][] ergebnis = {};
+        try {
+            Class.forName(driver);
+            conn = DriverManager.getConnection(url + dbName, userName, password);
+            System.out.println("Connected to the database");
+            ergebnis = grafikkartenQuery();
+            conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ergebnis;
+
+    }
+
+    public static String[][] grafikkartenQuery() throws SQLException {
+        String result = "";
+        Statement stmt = conn.createStatement();
+        ResultSet rs;
+        result += "Typname, VRAM, Hersteller# ";
+        rs = stmt.executeQuery("SELECT Typname, VRAM, Hersteller FROM Grafikkarten");
+        int counter = 1;
+        while (rs.next()) {
+            int vram = rs.getInt("VRAM");
+            String typ = rs.getString("Typname");
+            String hersteller = rs.getString("Hersteller");
+            result += vram + ", " + typ + ", " + hersteller + "# ";
+            System.out
+                    .println(" Typname: " + typ + "VRAM: " + vram + " Hersteller: " + hersteller);
+            counter++;
+        }
+        String[][] ergebnis = new String[counter][3];
+        for (int i = 0; i < counter; i++) {
+            ergebnis[i] = result.split("#")[i].split(",");
+        }
+        System.out.println("Disconnected from database");
+
+        return ergebnis;
+    }
+
+    public static String[][] cpuQuery() {
         String result = "";
         String[][] ergebnis = {};
         try {
@@ -31,8 +74,8 @@ public class Hauptklasse {
             System.out.println("Connected to the database");
             Statement stmt = conn.createStatement();
             ResultSet rs;
-            result += "VRAM, Typname, Hersteller# ";
-            rs = stmt.executeQuery("SELECT VRAM, Typname, Hersteller FROM Grafikkarten");
+            result += "Typname, VRAM, Hersteller# ";
+            rs = stmt.executeQuery("SELECT Typname, VRAM, Hersteller FROM Grafikkarten");
             int counter = 1;
             while (rs.next()) {
                 int vram = rs.getInt("VRAM");
@@ -40,10 +83,11 @@ public class Hauptklasse {
                 String hersteller = rs.getString("Hersteller");
                 result += vram + ", " + typ + ", " + hersteller + "# ";
                 System.out.println(
-                        "VRAM: " + vram + " Typname: " + typ + " Hersteller: " + hersteller);
+                        " Typname: " + typ + "VRAM: " + vram + " Hersteller: " + hersteller);
                 counter++;
             }
             System.out.println(result.split("# ").length);
+            System.out.println(counter);
 
             ergebnis = new String[counter][3];
             for (int i = 0; i < counter; i++) {
