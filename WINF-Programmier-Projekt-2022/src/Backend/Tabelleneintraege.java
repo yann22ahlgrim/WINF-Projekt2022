@@ -16,6 +16,4 @@ public class Tabelleneintraege {
         festplatten = new ArrayList<String>();
         betriebssysteme = new ArrayList<String>();
     }
-    
-    
 }
