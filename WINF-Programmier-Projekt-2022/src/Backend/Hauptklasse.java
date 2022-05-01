@@ -34,7 +34,7 @@ public class Hauptklasse {
             Class.forName(driver);
             conn = DriverManager.getConnection(url + dbName, userName, password);
             System.out.println("Connected to the database");
-            ergebnis = grafikkartenQuery(new Grafikkarte());
+            ergebnis = Query(new Grafikkarte());
             conn.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -43,78 +43,39 @@ public class Hauptklasse {
 
     }
 
-    public static String[][] grafikkartenQuery(Produkt p) throws SQLException {
+    public static String[][] Query(Produkt p) throws SQLException {
         String result = "";
         Statement stmt = conn.createStatement();
         ResultSet rs;
         // Tabelle Spalten benennen
         for (int i = 0; i < p.getTabelleneintraege().length; i++) {
-            result += p.getTabelleneintraege()[i] + " ,";
+            result += p.getTabelleneintraege()[i] + "<<";
         }
-        result += "# ";
+        result += "##";
         // Query Spalten benennen
         String query = "";
         for (int i = 0; i < p.getTabelleneintraege().length; i++) {
             query += p.getTabelleneintraege()[i] + ", ";
         }
-        query=query.substring(0,query.length()-2);
+        query = query.substring(0, query.length() - 2);
         System.out.println(query);
         rs = stmt.executeQuery("SELECT " + query + " FROM " + p.produktTyp());
         int counter = 1;
         while (rs.next()) {
-            int vram = rs.getInt("VRAM");
-            String typ = rs.getString("Name");
-            String hersteller = rs.getString("Hersteller");
-            result += vram + ", " + typ + ", " + hersteller + "# ";
-            System.out
-                    .println(" Typname: " + typ + "VRAM: " + vram + " Hersteller: " + hersteller);
+            for (int i = 0; i < p.getTabelleneintraege().length; i++) {
+                result += rs.getString(p.getTabelleneintraege()[i]) + "<<";
+            }
+            result += "##";
             counter++;
         }
         String[][] ergebnis = new String[counter][p.getTabelleneintraege().length];
         for (int i = 0; i < counter; i++) {
-            ergebnis[i] = result.split("#")[i].split(",");
+            ergebnis[i] = result.split("##")[i].split("<<");
         }
         System.out.println("Disconnected from database");
 
         return ergebnis;
-    }
-
-    public static String[][] cpuQuery() {
-        String result = "";
-        String[][] ergebnis = {};
-        try {
-            Class.forName(driver);
-            conn = DriverManager.getConnection(url + dbName, userName, password);
-            System.out.println("Connected to the database");
-            Statement stmt = conn.createStatement();
-            ResultSet rs;
-            result += "Typname, VRAM, Hersteller# ";
-            rs = stmt.executeQuery("SELECT Typname, VRAM, Hersteller FROM Grafikkarten");
-            int counter = 1;
-            while (rs.next()) {
-                int vram = rs.getInt("VRAM");
-                String typ = rs.getString("Typname");
-                String hersteller = rs.getString("Hersteller");
-                result += vram + ", " + typ + ", " + hersteller + "# ";
-                System.out.println(
-                        " Typname: " + typ + "VRAM: " + vram + " Hersteller: " + hersteller);
-                counter++;
-            }
-            System.out.println(result.split("# ").length);
-            System.out.println(counter);
-
-            ergebnis = new String[counter][3];
-            for (int i = 0; i < counter; i++) {
-                ergebnis[i] = result.split("#")[i].split(",");
-                System.out.println("hihi: " + ergebnis[i][0]);
-            }
-            conn.close();
-            System.out.println("Disconnected from database");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return ergebnis;
-    }
+    }    
 
     public static void uI(String[][] input) {
         EventQueue.invokeLater(new Runnable() {
