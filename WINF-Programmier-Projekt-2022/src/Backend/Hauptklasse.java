@@ -22,10 +22,7 @@ public class Hauptklasse {
     static Tabelleneintraege tab = new Tabelleneintraege();
 
     public static void main(String[] args) {
-
-        // uI(grafikkartenQuery());
         uI(establishConnection());
-
     }
 
     public static String[][] establishConnection() {
@@ -58,9 +55,9 @@ public class Hauptklasse {
             query += p.getTabelleneintraege()[i] + ", ";
         }
         query = query.substring(0, query.length() - 2);
-        System.out.println(query);
         rs = stmt.executeQuery("SELECT " + query + " FROM " + p.produktTyp());
         int counter = 1;
+        // Alle Spalten holen
         while (rs.next()) {
             for (int i = 0; i < p.getTabelleneintraege().length; i++) {
                 result += rs.getString(p.getTabelleneintraege()[i]) + "<<";
@@ -68,6 +65,7 @@ public class Hauptklasse {
             result += "##";
             counter++;
         }
+        // Alle Daten in Array parsen
         String[][] ergebnis = new String[counter][p.getTabelleneintraege().length];
         for (int i = 0; i < counter; i++) {
             ergebnis[i] = result.split("##")[i].split("<<");
@@ -75,7 +73,7 @@ public class Hauptklasse {
         System.out.println("Disconnected from database");
 
         return ergebnis;
-    }    
+    }
 
     public static void uI(String[][] input) {
         EventQueue.invokeLater(new Runnable() {
